@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { format } from "date-fns";
 
 type AttendanceRecord = {
   id: number;
@@ -85,6 +86,10 @@ export function AttendanceTracker() {
     }
   };
 
+  const today = new Date();
+  const formattedDate = format(today, "d");
+  const formattedMonth = format(today, "MMM");
+
   return (
     <div className="space-y-6">
       <Card className="bg-white shadow-sm">
@@ -95,6 +100,8 @@ export function AttendanceTracker() {
               <div className="absolute inset-[12px] rounded-full bg-white shadow-inner flex items-center justify-center">
                 <div className="text-4xl font-bold text-gray-900">{elapsedTime}</div>
                 <div className="absolute -bottom-1 text-sm text-gray-500 bg-white px-2">Hrs</div>
+                <div className="absolute top-8 text-2xl font-bold text-blue-500">{formattedDate}</div>
+                <div className="absolute top-14 text-sm text-gray-500">{formattedMonth}</div>
               </div>
             </div>
 
