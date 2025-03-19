@@ -48,10 +48,9 @@ export function AttendanceTracker() {
     const newRecord: AttendanceRecord = {
       id: Date.now(),
       startTime: new Date(),
-      notes,
+      notes: notes,
     };
     setCurrentRecord(newRecord);
-    setNotes("");
     toast({ title: "Checked in successfully" });
   };
 
@@ -63,6 +62,7 @@ export function AttendanceTracker() {
       };
       setAttendanceHistory(prev => [completedRecord, ...prev]);
       setCurrentRecord(null);
+      setNotes("");
       toast({ title: "Checked out successfully" });
     }
   };
