@@ -71,31 +71,36 @@ export function AttendanceTracker() {
     <div className="space-y-6">
       <Card className="bg-white shadow-sm">
         <CardContent className="pt-6">
-          <div className="flex flex-col items-center gap-4">
-            <div className="relative w-48 h-48 rounded-full border-[16px] border-gray-100 flex items-center justify-center bg-white shadow-inner">
-              <div className="text-4xl font-bold text-gray-900">{elapsedTime}</div>
-              <div className="absolute -bottom-2 text-sm text-gray-500 bg-white px-2">Hrs</div>
+          <div className="flex flex-col items-center gap-6">
+            <div className="relative w-48 h-48">
+              <div className="absolute inset-0 rounded-full border-[12px] border-gray-100"></div>
+              <div className="absolute inset-[12px] rounded-full bg-white shadow-inner flex items-center justify-center">
+                <div className="text-4xl font-bold text-gray-900">{elapsedTime}</div>
+                <div className="absolute -bottom-1 text-sm text-gray-500 bg-white px-2">Hrs</div>
+              </div>
             </div>
 
             <div className="w-full max-w-sm space-y-4">
-              <Input
-                placeholder="Add Notes"
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                disabled={currentRecord !== null}
-                className="bg-gray-50 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
-              />
+              <div className="relative">
+                <Input
+                  placeholder="Add Notes"
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  disabled={currentRecord !== null}
+                  className="pl-4 pr-4 py-2 bg-gray-50 border-gray-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-md text-sm"
+                />
+              </div>
 
               {currentRecord ? (
                 <Button
-                  className="w-full bg-red-500 hover:bg-red-600 text-white"
+                  className="w-full bg-red-500 hover:bg-red-600 text-white font-medium py-2.5"
                   onClick={handleCheckOut}
                 >
                   Check Out
                 </Button>
               ) : (
                 <Button
-                  className="w-full bg-blue-500 hover:bg-blue-600 text-white"
+                  className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-medium py-2.5"
                   onClick={handleCheckIn}
                 >
                   Check In
