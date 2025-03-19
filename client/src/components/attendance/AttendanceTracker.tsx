@@ -57,7 +57,7 @@ export function AttendanceTracker({ user }: AttendanceTrackerProps) {
         const checkInTime = new Date(currentAttendance.checkIn);
         const currentTime = new Date(event.data);
         const diff = currentTime.getTime() - checkInTime.getTime();
-        
+
         const hours = Math.floor(diff / 3600000);
         const minutes = Math.floor((diff % 3600000) / 60000);
         const seconds = Math.floor((diff % 60000) / 1000);
@@ -74,12 +74,12 @@ export function AttendanceTracker({ user }: AttendanceTrackerProps) {
   }, [currentAttendance]);
 
   return (
-    <Card className="w-full">
+    <Card className="bg-white shadow-sm">
       <CardContent className="pt-6">
         <div className="flex flex-col items-center gap-4">
-          <div className="relative w-48 h-48 rounded-full border-8 border-gray-100 flex items-center justify-center">
-            <div className="text-3xl font-bold">{elapsedTime}</div>
-            <div className="absolute bottom-0 text-sm">Hrs</div>
+          <div className="relative w-48 h-48 rounded-full border-[16px] border-gray-100 flex items-center justify-center bg-white shadow-inner">
+            <div className="text-4xl font-bold text-gray-900">{elapsedTime}</div>
+            <div className="absolute -bottom-2 text-sm text-gray-500 bg-white px-2">Hrs</div>
           </div>
 
           <div className="w-full max-w-sm space-y-4">
@@ -88,11 +88,12 @@ export function AttendanceTracker({ user }: AttendanceTrackerProps) {
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               disabled={currentAttendance !== null}
+              className="bg-gray-50 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
             />
 
             {currentAttendance ? (
               <Button
-                className="w-full"
+                className="w-full bg-red-500 hover:bg-red-600 text-white"
                 onClick={() => checkOutMutation.mutate()}
                 disabled={checkOutMutation.isPending}
               >
@@ -100,7 +101,7 @@ export function AttendanceTracker({ user }: AttendanceTrackerProps) {
               </Button>
             ) : (
               <Button
-                className="w-full"
+                className="w-full bg-blue-500 hover:bg-blue-600 text-white"
                 onClick={() => checkInMutation.mutate()}
                 disabled={checkInMutation.isPending}
               >
