@@ -19,6 +19,24 @@ export function AttendanceTracker() {
   const [notes, setNotes] = useState("");
   const { toast } = useToast();
 
+  // Load history from localStorage on mount
+  useEffect(() => {
+    const savedHistory = localStorage.getItem('attendanceHistory');
+    if (savedHistory) {
+      const parsedHistory = JSON.parse(savedHistory).map((record: any) => ({
+        ...record,
+        startTime: new Date(record.startTime),
+        endTime: record.endTime ? new Date(record.endTime) : undefined
+      }));
+      setAttendanceHistory(parsedHistory);
+    }
+  }, []);
+
+  // Save history to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem('attendanceHistory', JSON.stringify(attendanceHistory));
+  }, [attendanceHistory]);
+
   const updateElapsedTime = useCallback(() => {
     if (!currentRecord) {
       setElapsedTime("00:00:00");
