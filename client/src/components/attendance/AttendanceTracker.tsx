@@ -1,77 +1,58 @@
-import { useState, useEffect } from "react";
-import { useQuery, useMutation } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { format } from "date-fns";
-import { User } from "@shared/schema";
 
-interface AttendanceTrackerProps {
-  user: User;
-}
+type CheckInRecord = {
+  startTime: Date;
+  notes: string;
+};
 
-export function AttendanceTracker({ user }: AttendanceTrackerProps) {
+export function AttendanceTracker() {
+  const [currentRecord, setCurrentRecord] = useState<CheckInRecord | null>(null);
   const [elapsedTime, setElapsedTime] = useState("00:00:00");
   const [notes, setNotes] = useState("");
   const { toast } = useToast();
 
-  const { data: currentAttendance, refetch } = useQuery({
-    queryKey: ["/api/attendance/current", user.id],
-    select: (data: any) => data as { checkIn: string } | null,
-  });
+  const updateElapsedTime = useCallback(() => {
+    if (!currentRecord) {
+      setElapsedTime("00:00:00");
+      return;
+    }
 
-  const checkInMutation = useMutation({
-    mutationFn: async () => {
-      return apiRequest("POST", "/api/attendance/check-in", {
-        userId: user.id,
-        checkIn: new Date(),
-        notes,
-      });
-    },
-    onSuccess: () => {
-      refetch();
-      setNotes("");
-      toast({ title: "Checked in successfully" });
-    },
-  });
+    const now = new Date();
+    const diff = now.getTime() - currentRecord.startTime.getTime();
 
-  const checkOutMutation = useMutation({
-    mutationFn: async () => {
-      return apiRequest("POST", `/api/attendance/check-out/${user.id}`, {});
-    },
-    onSuccess: () => {
-      refetch();
-      toast({ title: "Checked out successfully" });
-    },
-  });
+    const hours = Math.floor(diff / 3600000);
+    const minutes = Math.floor((diff % 3600000) / 60000);
+    const seconds = Math.floor((diff % 60000) / 1000);
+
+    setElapsedTime(
+      `${hours.toString().padStart(2, "0")}:${minutes
+        .toString()
+        .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`
+    );
+  }, [currentRecord]);
 
   useEffect(() => {
-    const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-    const wsUrl = `${protocol}//${window.location.host}/ws`;
-    const socket = new WebSocket(wsUrl);
+    const timer = setInterval(updateElapsedTime, 1000);
+    return () => clearInterval(timer);
+  }, [updateElapsedTime]);
 
-    socket.onmessage = (event) => {
-      if (currentAttendance?.checkIn) {
-        const checkInTime = new Date(currentAttendance.checkIn);
-        const currentTime = new Date(event.data);
-        const diff = currentTime.getTime() - checkInTime.getTime();
+  const handleCheckIn = () => {
+    setCurrentRecord({
+      startTime: new Date(),
+      notes,
+    });
+    setNotes("");
+    toast({ title: "Checked in successfully" });
+  };
 
-        const hours = Math.floor(diff / 3600000);
-        const minutes = Math.floor((diff % 3600000) / 60000);
-        const seconds = Math.floor((diff % 60000) / 1000);
-
-        setElapsedTime(
-          `${hours.toString().padStart(2, "0")}:${minutes
-            .toString()
-            .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`
-        );
-      }
-    };
-
-    return () => socket.close();
-  }, [currentAttendance]);
+  const handleCheckOut = () => {
+    setCurrentRecord(null);
+    toast({ title: "Checked out successfully" });
+  };
 
   return (
     <Card className="bg-white shadow-sm">
@@ -87,23 +68,21 @@ export function AttendanceTracker({ user }: AttendanceTrackerProps) {
               placeholder="Add Notes"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              disabled={currentAttendance !== null}
+              disabled={currentRecord !== null}
               className="bg-gray-50 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
             />
 
-            {currentAttendance ? (
+            {currentRecord ? (
               <Button
                 className="w-full bg-red-500 hover:bg-red-600 text-white"
-                onClick={() => checkOutMutation.mutate()}
-                disabled={checkOutMutation.isPending}
+                onClick={handleCheckOut}
               >
                 Check Out
               </Button>
             ) : (
               <Button
                 className="w-full bg-blue-500 hover:bg-blue-600 text-white"
-                onClick={() => checkInMutation.mutate()}
-                disabled={checkInMutation.isPending}
+                onClick={handleCheckIn}
               >
                 Check In
               </Button>
