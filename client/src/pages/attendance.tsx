@@ -48,12 +48,13 @@ export default function AttendancePage() {
           {/* Left Column */}
           <div className="space-y-6">
             <AttendanceTracker />
-            <ProjectDirectory />
+           
           </div>
 
           {/* Middle Column */}
-          <div>
+          <div className="space-y-6">
             <Calendar />
+            <ProjectDirectory />
           </div>
 
           {/* Right Column */}
