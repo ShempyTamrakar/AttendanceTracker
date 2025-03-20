@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -22,12 +23,12 @@ export function AttendanceTracker() {
 
   // Load history from localStorage on mount
   useEffect(() => {
-    const savedHistory = localStorage.getItem('attendanceHistory');
+    const savedHistory = localStorage.getItem("attendanceHistory");
     if (savedHistory) {
       const parsedHistory = JSON.parse(savedHistory).map((record: any) => ({
         ...record,
         startTime: new Date(record.startTime),
-        endTime: record.endTime ? new Date(record.endTime) : undefined
+        endTime: record.endTime ? new Date(record.endTime) : undefined,
       }));
       setAttendanceHistory(parsedHistory);
     }
@@ -35,7 +36,7 @@ export function AttendanceTracker() {
 
   // Save history to localStorage whenever it changes
   useEffect(() => {
-    localStorage.setItem('attendanceHistory', JSON.stringify(attendanceHistory));
+    localStorage.setItem("attendanceHistory", JSON.stringify(attendanceHistory));
   }, [attendanceHistory]);
 
   const updateElapsedTime = useCallback(() => {
@@ -52,9 +53,9 @@ export function AttendanceTracker() {
     const seconds = Math.floor((diff % 60000) / 1000);
 
     setElapsedTime(
-      `${hours.toString().padStart(2, "0")}:${minutes
+      `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${seconds
         .toString()
-        .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`
+        .padStart(2, "0")}`
     );
   }, [currentRecord]);
 
@@ -79,7 +80,7 @@ export function AttendanceTracker() {
         ...currentRecord,
         endTime: new Date(),
       };
-      setAttendanceHistory(prev => [completedRecord, ...prev]);
+      setAttendanceHistory((prev) => [completedRecord, ...prev]);
       setCurrentRecord(null);
       setNotes(""); // Only clear notes after saving to history
       toast({ title: "Checked out successfully" });
@@ -89,22 +90,32 @@ export function AttendanceTracker() {
   const today = new Date();
   const formattedDate = format(today, "d");
   const formattedMonth = format(today, "MMM");
+  const formattedYear = format(today, "yyyy");
 
   return (
     <div className="space-y-6">
+      {/* Attendance Clock */}
       <Card className="bg-white shadow-sm">
         <CardContent className="pt-6">
           <div className="flex flex-col items-center gap-6">
+            {/* Clock UI */}
             <div className="relative w-48 h-48">
               <div className="absolute inset-0 rounded-full border-[12px] border-gray-100"></div>
-              <div className="absolute inset-[12px] rounded-full bg-white shadow-inner flex items-center justify-center">
-                <div className="text-4xl font-bold text-gray-900">{elapsedTime}</div>
-                <div className="absolute -bottom-1 text-sm text-gray-500 bg-white px-2">Hrs</div>
-                <div className="absolute top-8 text-2xl font-bold text-blue-500">{formattedDate}</div>
-                <div className="absolute top-14 text-sm text-gray-500">{formattedMonth}</div>
+              <div
+                className="absolute inset-[12px] rounded-full bg-white shadow-inner flex flex-col items-center justify-center"
+                style={{ padding: "10px" }}
+              >
+                <div className="text-4xl font-bold text-gray-900" style={{ fontSize: "25px" }}>
+                  {elapsedTime} Hrs
+                </div>
+                {/* <span className="text-sm font-medium text-gray-600">Hrs</span> */}
+                <div className="text-sm text-gray-500 mt-1">
+                  {formattedDate} {formattedMonth} {formattedYear}
+                </div>
               </div>
             </div>
 
+            {/* Input and Check-in/Check-out Buttons */}
             <div className="w-full max-w-sm space-y-4">
               <div className="relative">
                 <Input
@@ -136,6 +147,7 @@ export function AttendanceTracker() {
         </CardContent>
       </Card>
 
+      {/* Attendance History */}
       {attendanceHistory.length > 0 && (
         <Card className="bg-white shadow-sm">
           <CardContent className="p-4">
@@ -152,9 +164,7 @@ export function AttendanceTracker() {
                         {record.startTime.toLocaleDateString()}
                       </span>
                     </div>
-                    {record.notes && (
-                      <p className="text-sm text-gray-600 mt-1">{record.notes}</p>
-                    )}
+                    {record.notes && <p className="text-sm text-gray-600 mt-1">{record.notes}</p>}
                   </div>
                 ))}
               </div>
